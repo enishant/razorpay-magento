@@ -3,6 +3,7 @@
 namespace Razorpay\Magento\Model;
 
 use \Magento\Framework\App\Config\ScopeConfigInterface;
+use \Magento\Framework\App\Config\Storage\WriterInterface;
 
 class Config
 {
@@ -13,8 +14,10 @@ class Config
     const KEY_PRIVATE_KEY = 'key_secret';
     const KEY_MERCHANT_NAME_OVERRIDE = 'merchant_name_override';
     const KEY_PAYMENT_ACTION = 'rzp_payment_action';
-    const KEY_AUTO_INVOICE = 'auto_invoice';
-    const KEY_NEW_ORDER_STATUS = 'order_status';
+    const ENABLE_WEBHOOK = 'enable_webhook';
+    const WEBHOOK_SECRET = 'webhook_secret';
+    const WEBHOOK_WAIT_TIME = 'webhook_wait_time';
+    const SKIP_AMOUNT_MISMATCH_ORDER = 'skip_amount_mismatch_order';
 
     /**
      * @var string
@@ -26,6 +29,7 @@ class Config
      */
     protected $scopeConfig;
 
+		protected $configWriter;
     /**
      * @var int
      */
@@ -33,11 +37,14 @@ class Config
 
     /**
      * @param ScopeConfigInterface $scopeConfig
+		 * @param WriterInterface $configWriter
      */
     public function __construct(
-        ScopeConfigInterface $scopeConfig
+        ScopeConfigInterface $scopeConfig,
+				WriterInterface $configWriter
     ) {
         $this->scopeConfig = $scopeConfig;
+				$this->configWriter = $configWriter;
     }
 
     /**
@@ -52,6 +59,16 @@ class Config
     {
         return $this->getConfigData(self::KEY_PUBLIC_KEY);
     }
+
+    public function isWebhookEnabled()
+    {
+        return (bool) (int) $this->getConfigData(self::ENABLE_WEBHOOK, $this->storeId);
+    }
+
+    public function getWebhookSecret()
+    {
+        return $this->getConfigData(self::WEBHOOK_SECRET);
+    }
     
     public function getPaymentAction()
     {
@@ -61,6 +78,11 @@ class Config
     public function getNewOrderStatus()
     {
         return $this->getConfigData(self::KEY_NEW_ORDER_STATUS);
+    }
+
+    public function isSkipOrderEnabled()
+    {
+        return (bool) (int) $this->getConfigData(self::SKIP_AMOUNT_MISMATCH_ORDER, $this->storeId);
     }
 
     /**
@@ -91,6 +113,24 @@ class Config
 
         $path = 'payment/' . $code . '/' . $field;
         return $this->scopeConfig->getValue($path, \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $storeId);
+    }
+
+    /**
+     * Set information from payment configuration
+     *
+     * @param string $field
+     * @param string $value
+     * @param null|string $storeId
+     *
+     * @return mixed
+     */
+    public function setConfigData($field, $value)
+    {
+        $code = $this->methodCode;
+
+        $path = 'payment/' . $code . '/' . $field;
+
+        return $this->configWriter->save($path, $value);
     }
 
     /**
