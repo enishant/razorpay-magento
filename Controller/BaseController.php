@@ -2,6 +2,7 @@
 
 namespace Razorpay\Magento\Controller;
 
+require_once __DIR__ . "/../../Razorpay/Razorpay.php";
 use Razorpay\Api\Api;
 use Razorpay\Magento\Model\Config;
 use Magento\Framework\App\RequestInterface;

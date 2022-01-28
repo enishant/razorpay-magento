@@ -2,6 +2,7 @@
 
 namespace Razorpay\Magento\Controller\Payment;
 
+use Razorpay\Api\Api;
 use Razorpay\Magento\Model\PaymentMethod;
 use Magento\Framework\Controller\ResultFactory;
 
@@ -11,13 +12,26 @@ class Order extends \Razorpay\Magento\Controller\BaseController
 
     protected $checkoutSession;
 
+    protected $cartManagement;
+
+    protected $cache;
+
+    protected $orderRepository;
+
+    protected $logger;
+
     protected $_currency = PaymentMethod::CURRENCY;
     /**
      * @param \Magento\Framework\App\Action\Context $context
      * @param \Magento\Customer\Model\Session $customerSession
      * @param \Magento\Checkout\Model\Session $checkoutSession
      * @param \Magento\Razorpay\Model\CheckoutFactory $checkoutFactory
-     * @param \Magento\Razorpay\Model\Config\Payment $razorpayConfig
+     * @param \Razorpay\Magento\Model\Config $config
+     * @param \Magento\Catalog\Model\Session $catalogSession
+     * @param \Magento\Quote\Api\CartManagementInterface $cartManagement
+     * @param \Magento\Framework\App\CacheInterface $cache
+     * @param \Magento\Sales\Api\OrderRepositoryInterface $orderRepository
+     * @param \Psr\Log\LoggerInterface $logger
      */
     public function __construct(
         \Magento\Framework\App\Action\Context $context,
@@ -25,7 +39,11 @@ class Order extends \Razorpay\Magento\Controller\BaseController
         \Magento\Checkout\Model\Session $checkoutSession,
         \Razorpay\Magento\Model\CheckoutFactory $checkoutFactory,
         \Razorpay\Magento\Model\Config $config,
-        \Magento\Catalog\Model\Session $catalogSession
+        \Magento\Catalog\Model\Session $catalogSession,
+        \Magento\Quote\Api\CartManagementInterface $cartManagement,
+        \Magento\Framework\App\CacheInterface $cache,
+        \Magento\Sales\Api\OrderRepositoryInterface $orderRepository,
+        \Psr\Log\LoggerInterface $logger
     ) {
         parent::__construct(
             $context,
@@ -35,8 +53,15 @@ class Order extends \Razorpay\Magento\Controller\BaseController
         );
 
         $this->checkoutFactory = $checkoutFactory;
-        $this->catalogSession = $catalogSession;
-        $this->config = $config;
+        $this->catalogSession  = $catalogSession;
+        $this->config          = $config;
+        $this->cartManagement  = $cartManagement;
+        $this->customerSession = $customerSession;
+        $this->cache           = $cache;
+        $this->orderRepository = $orderRepository;
+        $this->logger          = $logger;
+
+        $this->objectManagement   = \Magento\Framework\App\ObjectManager::getInstance();
     }
 
     public function execute()
@@ -129,6 +154,39 @@ class Order extends \Razorpay\Magento\Controller\BaseController
 
     public function getOrderID()
     {
-        return $this->catalogSession->getRazorpayOrderID();
+        // return $this->catalogSession->getRazorpayOrderID();
+        return $this->checkoutSession->getRazorpayOrderID();
+    }
+
+    protected function getMerchantPreferences()
+    {
+        try
+        {
+            $api = new Api($this->config->getKeyId(),"");
+
+            $response = $api->request->request("GET", "preferences");
+        }
+        catch (\Razorpay\Api\Errors\Error $e)
+        {
+            echo 'Magento Error : ' . $e->getMessage();
+        }
+
+        $preferences = [];
+
+        $preferences['embedded_url'] = Api::getFullUrl("checkout/embedded");
+        $preferences['is_hosted'] = false;
+        $preferences['image'] = $response['options']['image'];
+
+        if(isset($response['options']['redirect']) && $response['options']['redirect'] === true)
+        {
+            $preferences['is_hosted'] = true;
+        }
+
+        return $preferences;
+    }
+
+    public function getDiscount()
+    {
+        return ($this->getQuote()->getBaseSubtotal() - $this->getQuote()->getBaseSubtotalWithDiscount());
     }
 }
