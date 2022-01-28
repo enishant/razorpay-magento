@@ -11,6 +11,8 @@ composer require razorpay/magento
 bin/magento module:enable Razorpay_Magento
 ```
 
+changed here
+
 ### Install through "code.zip" file
 
 Extract the attached code.zip from release
