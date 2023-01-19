@@ -42,4 +42,3 @@ jobs:
         process: 'unit-test'
         elasticsearch: 1
         unit_test_subset_path: 'vendor/razorpay/magento/Test/Unit'
-
