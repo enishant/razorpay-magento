@@ -5,7 +5,7 @@ on: [push]
 jobs:
   magento2-build:
     runs-on: ubuntu-latest
-    name: 'm2 tests & build'
+    name: 'Magento Unit Tests'
     services:
       mysql:
         image: docker://mysql:8.0
@@ -23,28 +23,28 @@ jobs:
     steps:
     - uses: actions/checkout@v2  
     
-    - name: 'install fresh magento repo'
+    - name: 'Install fresh magento repo'
       #if: ${{false}}
       uses: MAD-I-T/magento-actions@v3.16
       env:
         COMPOSER_AUTH: ${{secrets.COMPOSER_AUTH}}
       with:
         process: 'create-project'
+        run: composer require razorpay/magento:dev-ut-test-3 && bin/magento module:enable Razorpay_Magento
         magento_version: 2.4.5-p1
         no_push: 1   ## add this arg to not push to the repo ideal for quick test on specific version
 
-    - name: 'launch magento2 unit test specific module i.e razorpay/magento'
+    - name: 'Launch Magento 2 unit test specific module i.e razorpay/magento'
       if: always()
       uses: MAD-I-T/magento-actions@v3.16
       env:
         COMPOSER_AUTH: ${{secrets.COMPOSER_AUTH}}
       with:
-        command: composer require razorpay/magento:dev-"${{ steps.branch-name.outputs.ref_branch }}" && bin/magento module:enable Razorpay_Magento
         process: 'unit-test'
         elasticsearch: 1
         unit_test_subset_path: 'vendor/razorpay/magento/Test/Unit'
 
-    - name: 'launch magento2 unit test specific module i.e module-email'
+    - name: 'Launch magento2 unit test specific module i.e module-email'
       if: always()
       uses: MAD-I-T/magento-actions@v3.16
       env:
