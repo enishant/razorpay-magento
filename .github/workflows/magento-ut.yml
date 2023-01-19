@@ -25,18 +25,17 @@ jobs:
     
     - name: 'Install fresh magento repo'
       #if: ${{false}}
-      uses: MAD-I-T/magento-actions@v3.16
+      uses: enishant/magento-actions
       env:
         COMPOSER_AUTH: ${{secrets.COMPOSER_AUTH}}
       with:
         process: 'create-project'
-        run: composer require razorpay/magento:dev-ut-test-3 && bin/magento module:enable Razorpay_Magento
         magento_version: 2.4.5-p1
         no_push: 1   ## add this arg to not push to the repo ideal for quick test on specific version
 
     - name: 'Launch Magento 2 unit test specific module i.e razorpay/magento'
       if: always()
-      uses: MAD-I-T/magento-actions@v3.16
+      uses: enishant/magento-actions
       env:
         COMPOSER_AUTH: ${{secrets.COMPOSER_AUTH}}
       with:
@@ -44,12 +43,3 @@ jobs:
         elasticsearch: 1
         unit_test_subset_path: 'vendor/razorpay/magento/Test/Unit'
 
-    - name: 'Launch magento2 unit test specific module i.e module-email'
-      if: always()
-      uses: MAD-I-T/magento-actions@v3.16
-      env:
-        COMPOSER_AUTH: ${{secrets.COMPOSER_AUTH}}
-      with:
-        process: 'unit-test'
-        elasticsearch: 1
-        unit_test_subset_path: 'vendor/magento/module-email/Test/Unit'
