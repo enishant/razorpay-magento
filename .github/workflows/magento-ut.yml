@@ -39,7 +39,7 @@ jobs:
       env:
         COMPOSER_AUTH: ${{secrets.COMPOSER_AUTH}}
       with:
-        process: 'unit-test' 
+        process: 'unit-test'
         elasticsearch: 1
         unit_test_subset_path: 'vendor/razorpay/magento/Test/Unit'
 
