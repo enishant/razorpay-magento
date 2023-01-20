@@ -25,7 +25,7 @@ jobs:
     
     - name: 'Install fresh magento repo'
       #if: ${{false}}
-      uses: enishant/magento-actions@v3.18
+      uses: enishant/magento-actions@v3.18 
       env:
         COMPOSER_AUTH: ${{secrets.COMPOSER_AUTH}}
       with:
