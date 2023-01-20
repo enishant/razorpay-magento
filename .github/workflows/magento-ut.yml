@@ -24,7 +24,7 @@ jobs:
     - uses: actions/checkout@v2  
     
     - name: 'Install fresh magento repo'
-      #if: ${{false}}
+      #if: ${{false}} 
       uses: enishant/magento-actions@v3.18
       env:
         COMPOSER_AUTH: ${{secrets.COMPOSER_AUTH}}
