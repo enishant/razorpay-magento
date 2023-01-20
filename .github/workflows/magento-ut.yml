@@ -41,15 +41,4 @@ jobs:
       with:
         process: 'unit-test'
         elasticsearch: 1
-        unit_test_subset_path: 'vendor/razorpay/magento/Test/Unit'
-
-    - name: 'launch magento2 unit test specific module i.e module-email'
-      if: always()
-      uses: MAD-I-T/magento-actions@v3.16
-      env:
-        COMPOSER_AUTH: ${{secrets.COMPOSER_AUTH}}
-      with:
-        process: 'unit-test'
-        elasticsearch: 1
         unit_test_subset_path: './Test/Unit'
-
