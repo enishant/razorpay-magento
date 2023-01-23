@@ -28,12 +28,11 @@ jobs:
       uses: enishant/magento-actions@v3.18
       env:
         COMPOSER_AUTH: ${{secrets.COMPOSER_AUTH}}
-        RZP_BRANCH: ${{ github.head_ref || github.ref_name }} 
       with:
         process: 'create-project'
         magento_version: 2.4.5-p1 
         no_push: 1   ## add this arg to not push to the repo ideal for quick test on specific version
-        branch: random
+        branch: ${{ github.head_ref || github.ref_name }} 
 
     - name: 'Launch Magento 2 unit test specific module i.e razorpay/magento'
       if: always()
