@@ -31,7 +31,7 @@ jobs:
         RZP_BRANCH: ${{ github.head_ref }}
       with:
         process: 'create-project'
-        magento_version: 2.4.5-p1
+        magento_version: 2.4.5-p1 
         no_push: 1   ## add this arg to not push to the repo ideal for quick test on specific version
 
     - name: 'Launch Magento 2 unit test specific module i.e razorpay/magento'
