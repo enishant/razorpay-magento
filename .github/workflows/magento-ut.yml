@@ -28,7 +28,7 @@ jobs:
       uses: enishant/magento-actions@v3.18
       env:
         COMPOSER_AUTH: ${{secrets.COMPOSER_AUTH}}
-        RZP_BRANCH: ${{ github.head_ref }}
+        RZP_BRANCH: ${{ github.head_ref || github.ref_name }} 
       with:
         process: 'create-project'
         magento_version: 2.4.5-p1 
